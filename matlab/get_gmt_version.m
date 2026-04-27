@@ -51,8 +51,19 @@ end
 clear counter
 
 
+% Windows port: shared-library env vars (LD_LIBRARY_PATH / DYLD_LIBRARY_PATH)
+% are Unix-only — Windows resolves DLLs via PATH, not via env-driven library
+% paths. Skip the Unix library-path workaround and surface an actionable
+% error pointing the user at the standard Windows GMT installer.
+if gmt_does_not_work~=0 && ispc
+    error(['GMT executable not found on PATH. ', ...
+           'Install GMT for Windows from https://www.generic-mapping-tools.org/download/ ', ...
+           'and ensure the install dir (e.g. C:\Program Files\GMT\bin) is on the system PATH. ', ...
+           'Verify with `gmt --version` in a fresh cmd or PowerShell.']);
+end
+
 % if it did not work try to see if the library path can be changed to find GMT instead.
-if gmt_does_not_work~=0 
+if gmt_does_not_work~=0
    fprintf('GMT or gmt is not an executable, will try to fix the library paths \n')
    counter2 =1;
    counting =1;
