@@ -140,7 +140,15 @@ if orderflag_GACOS_website==1
             cd(subdirpath)
             fprintf('Order and downloading %s \n',filelist(l,5:16))
             aps_era5_ECMWF_Python(filelist(l,5:16),weatherregstr) %write python donwload file
-            python_str = ['python ',filelist(l,5:16),'.py > ',filelist(l,5:16),'down.log &'];
+            % Windows port: trailing '&' is Unix shell background; cmd.exe
+            % treats it as command separator, not fork. Run synchronously
+            % on Windows — acceptable since the GACOS workflow expects the
+            % user to pre-download .nc files manually anyway.
+            if ispc
+                python_str = ['python ',filelist(l,5:16),'.py > ',filelist(l,5:16),'down.log'];
+            else
+                python_str = ['python ',filelist(l,5:16),'.py > ',filelist(l,5:16),'down.log &'];
+            end
             [a,b] = system(python_str); % start python script
             clear a b
             cd ..
@@ -163,7 +171,12 @@ if orderflag_GACOS_website==1
                 delete([subdirpath,'ggap', filelist(l,5:16) '.nc'])
                 fprintf('Order and downloading %s \n',filelist(l,5:16))
                 aps_era5_ECMWF_Python(filelist(l,5:16),weatherregstr) %write python donwload file
-                python_str = ['python ',filelist(l,5:16),'.py > ',filelist(l,5:16),'down.log &'];
+                % Windows port: see comment above on '&' / cmd.exe.
+                if ispc
+                    python_str = ['python ',filelist(l,5:16),'.py > ',filelist(l,5:16),'down.log'];
+                else
+                    python_str = ['python ',filelist(l,5:16),'.py > ',filelist(l,5:16),'down.log &'];
+                end
                 [a,b] = system(python_str); % start python script
                 clear a b
                 cd ..
